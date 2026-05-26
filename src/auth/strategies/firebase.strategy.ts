@@ -5,7 +5,6 @@ import type { DecodedIdToken } from 'firebase-admin/auth';
 import { Strategy } from 'passport-custom';
 import { FirebaseService } from '../../firebase/firebase.service';
 import { FirebaseUser } from '../interfaces/firebase-user.interface';
-import { FirebaseUserMapper } from '../mappers/firebase-user.mapper';
 
 @Injectable()
 export class FirebaseStrategy extends PassportStrategy(Strategy, 'firebase') {
@@ -34,8 +33,16 @@ export class FirebaseStrategy extends PassportStrategy(Strategy, 'firebase') {
       const decodedToken: DecodedIdToken =
         await this.firebaseService.auth.verifyIdToken(token, true);
 
-      const user: FirebaseUser =
-        FirebaseUserMapper.fromDecodedToken(decodedToken);
+      const user = new FirebaseUser();
+      user.uid = decodedToken.uid;
+      user.email = decodedToken.email ?? '';
+      user.emailVerified = decodedToken.email_verified ?? false;
+      user.displayName = (decodedToken.name as string) ?? '';
+      user.photoURL = (decodedToken.picture as string) ?? '';
+      user.phoneNumber = (decodedToken.phone_number as string) ?? '';
+      user.disabled = false;
+      user.provider = decodedToken.firebase.sign_in_provider;
+      user.customClaims = decodedToken;
 
       return user;
     } catch (error: unknown) {

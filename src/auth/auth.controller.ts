@@ -16,8 +16,6 @@ import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { Public } from './decorators/public.decorator';
 import { VerifyTokenDto } from './dto/verify-token.dto';
-// Regular import — NOT "import type"
-// because it's used in decorated parameter signatures
 import { FirebaseUser } from './interfaces/firebase-user.interface';
 
 interface VerifyResponse {
@@ -42,10 +40,7 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Token is invalid or expired' })
   async verifyToken(@Body() dto: VerifyTokenDto): Promise<VerifyResponse> {
     const user = await this.authService.verifyToken(dto.token);
-    return {
-      valid: true,
-      user,
-    };
+    return { valid: true, user };
   }
 
   @Get('me')
